@@ -173,6 +173,7 @@ void MainWindow::loadNetworkConfig(QString cfg_path)
             connect(slave, &Slave::updateHoldingRegisters,
                     this, &MainWindow::updateHoldingRegisters);
 
+
             modnet->addSlave(slave);
 
             slaveNode = cfg.getNextSection();
@@ -182,6 +183,7 @@ void MainWindow::loadNetworkConfig(QString cfg_path)
         logPring("OK: network complete");
 
         updateSlavesList();
+
     }
     else
         logPring("ERROR: file " + cfg_path + " is't found");
@@ -441,16 +443,8 @@ void MainWindow::updateSlavesList()
         ui->lwSlavesList->setCurrentRow(0);
 }
 
-//------------------------------------------------------------------------------
-//
-//------------------------------------------------------------------------------
-void MainWindow::activeSlaveChanged(QListWidgetItem *cur, QListWidgetItem *prev)
-{
-    Q_UNUSED(prev)
-
-    int idx = cur->listWidget()->row(cur);
-
-    Slave *slave = getSlaveByIndex(idx);
+void MainWindow::updateRegisters(quint8 id){
+    Slave *slave = getSlaveByIndex(id);
 
     if (slave == nullptr)
         return;
@@ -459,6 +453,16 @@ void MainWindow::activeSlaveChanged(QListWidgetItem *cur, QListWidgetItem *prev)
     updateHoldingRegisters(slave->getID());
     updateDiscreteInputs(slave->getID());
     updateInputRegisters(slave->getID());
+}
+
+//------------------------------------------------------------------------------
+//
+//------------------------------------------------------------------------------
+void MainWindow::activeSlaveChanged(QListWidgetItem *cur, QListWidgetItem *prev)
+{
+    Q_UNUSED(prev)
+
+    updateRegisters(cur->listWidget()->row(cur));
 }
 
 //------------------------------------------------------------------------------
@@ -478,16 +482,10 @@ void MainWindow::updateCoils(quint8 id)
 
     ui->twCoils->setRowCount(0);
 
-	//QMap<quint16, data_unit_t<bool>> coils_tmp = slave->getCoils;
-
 	int i = 0;
 
-	foreach (data_unit_t<bool> key, slave->getCoils()) {
+    foreach (const auto key, slave->getCoils()) {
 
-
-
-	//for (int i = 0; i < slave->getCoilsCount(); i++)
-	//{
         ui->twCoils->insertRow(i);
 
         ui->twCoils->setItem(i,
@@ -556,10 +554,8 @@ void MainWindow::updateDiscreteInputs(quint8 id)
 
 	int i = 0;
 
-	foreach (data_unit_t<bool> key, slave->getDiscreteInputs()) {
+    foreach (const auto key, slave->getDiscreteInputs()) {
 
-	//for (int i = 0; i < slave->getDiscreteInputsCount(); i++)
-	//{
         ui->twDiscreteInputs->insertRow(i);
 
         ui->twDiscreteInputs->setItem(i,
@@ -590,10 +586,8 @@ void MainWindow::updateInputRegisters(quint8 id)
 
 	int i = 0;
 
-	foreach (data_unit_t<quint16> key, slave->getInputRegisters()) {
+    foreach (const auto key, slave->getInputRegisters()) {
 
-	//for (int i = 0; i < slave->getInputRegistersCount(); i++)
-	//{
         ui->twInputRegisters->insertRow(i);
 
         ui->twInputRegisters->setItem(i,
@@ -621,7 +615,9 @@ void MainWindow::onDiscreteInputChanged(int row, int column)
     if (column != VALUE_COL)
         return;
 
-    quint16 address = DI_INIT_ADDRESS + row;
+    /*Исправил, теперь адрес привязан к адресу регистра из конфигурации, а не вот к этому : IT_INIT_ADDRESS + row*/
+	/*Corrected, now the address is tied to the register address from the configuration, and not to this one: DI_INIT_ADDRESS + row*/
+    quint16 address = static_cast<bool>(ui->twDiscreteInputs->item(row, 0)->text().toInt());
     bool value = static_cast<bool>(ui->twDiscreteInputs->item(row, column)->text().toInt());
 
     int idx = ui->lwSlavesList->currentRow();
@@ -645,7 +641,9 @@ void MainWindow::onCoilChanged(int row, int column)
     if (column != VALUE_COL)
         return;
 
-    quint16 address = CL_INIT_ADDRESS + row;
+     /*Исправил, теперь адрес привязан к адресу регистра из конфигурации, а не вот к этому : CL_INIT_ADDRESS + row*/
+     /*Corrected, now the address is tied to the register address from the configuration, and not to this one: CL_INIT_ADDRESS + row*/
+    quint16 address = static_cast<bool>(ui->twCoils->item(row, 0)->text().toInt());
     bool value = static_cast<bool>(ui->twCoils->item(row, column)->text().toInt());
 
     int idx = ui->lwSlavesList->currentRow();
@@ -669,7 +667,9 @@ void MainWindow::onInputRegisterChanged(int row, int column)
     if (column != VALUE_COL)
         return;
 
-    quint16 address = IT_INIT_ADDRESS + row;
+    /*Исправил, теперь адрес привязан к адресу регистра из конфигурации, а не вот к этому : IT_INIT_ADDRESS + row*/
+	/*Corrected, now the address is linked to the register address from the configuration, and not to this one: IT_INIT_ADDRESS + row*/
+    quint16 address = static_cast<quint16>(ui->twInputRegisters->item(row, 0)->text().toInt());
     quint16 value = static_cast<quint16>(ui->twInputRegisters->item(row, column)->text().toInt());
 
     int idx = ui->lwSlavesList->currentRow();
@@ -693,7 +693,9 @@ void MainWindow::onHoldingRegisterChanged(int row, int column)
     if (column != VALUE_COL)
         return;
 
-    quint16 address = HL_INIT_ADDRESS + row;
+    /*Исправил, теперь адрес привязан к адресу регистра из конфигурации, а не вот к этому : HL_INIT_ADDRESS + row*/
+	/*Corrected, now the address is tied to the register address from the configuration, and not to this one: HL_INIT_ADDRESS + row*/
+    quint16 address = static_cast<quint16>(ui->twHoldingRedisters->item(row, column)->text().toInt());
     quint16 value = static_cast<quint16>(ui->twHoldingRedisters->item(row, column)->text().toInt());
 
     int idx = ui->lwSlavesList->currentRow();
@@ -740,10 +742,31 @@ void MainWindow::onOpenFileMenu()
                                                     "Open network configuration",
                                                     fullPath,
                                                     "*.net");
+
+    /*делаем так, чтобы метод MainWindow::activeSlaveChanged не выполнялся,
+     * так как он мешает обновлению листа Slaves устройств.
+     * Это устраняет проблему с повторной загрузкой файла.
+    */
+    /* we make it so that the MainWindow::activeSlaveChanged method is not executed,
+     * because it interferes with updating the Slaves device list.
+     * This fixes the issue with file re-download.
+    */
+    disconnect(ui->lwSlavesList, &QListWidget::currentItemChanged,
+            this, &MainWindow::activeSlaveChanged);
+
     modnet->clear();
     ui->lwSlavesList->clear();
 
     loadNetworkConfig(filePath);
+
+    /*Запускаем выполнение метода MainWindow::activeSlaveChanged
+     * после загрузки файла конфигурации  и обновления листа Slaves устройств
+    */
+	/*Start executing the MainWindow::activeSlaveChanged method
+     * after loading the configuration file and updating the Slaves device list
+    */
+    connect(ui->lwSlavesList, &QListWidget::currentItemChanged,
+            this, &MainWindow::activeSlaveChanged);
+
+    updateRegisters(0);
 }
-
-
