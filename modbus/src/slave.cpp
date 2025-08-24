@@ -268,7 +268,7 @@ bool Slave::checkRequest(QByteArray data)
 
     quint8 crc_idx = data.size() - 2;
     quint16 crc = word(data.at(crc_idx), data.at(crc_idx + 1));
-	quint16 crcCalc = calcCRC16calccCRC16((quint8 *) datadata.data(), datasize.size() - 2);
+    quint16 crcCalc = calcCRC16((quint8 *) data.data(), data.size() - 2);
 
     if (crc != crcCalc)
     {
@@ -437,13 +437,18 @@ void Slave::readRegisterValues(QByteArray data,
     for (int i = 0; i < count; i++)
     {
         /*
-         * added a check-in of the register address in the downloaded configuration.
-         * if the configuration file does not specify the address of the register, but it is still transmitted from the modbus device, then a string from zero will be inserted into the table
+         * добавил проверку наличия адреса регистра в загруженной конфигурации.
+         * если в файле конфигурации не указать адрес регистра, но он все же передается с устройства modbus, то в таблицу вставится строка с нуля
         */
-        if (rv.find(findaddress + i) == rv.end())
+		/*
+         * added check for presence of register address in loaded configuration.
+         * if the register address is not specified in the configuration file, but it is still transmitted from the modbus device, then a row from scratch will be inserted into the table
+        */
+		
+        if (rv.find(address + i) == rv.end())
             continue;
 
-		quint16 value = rv[address + i].value;
+        quint16 value = rv[address + i].value;
         reply.append(hiByte(value));
         reply.append(loByte(value));
     }
