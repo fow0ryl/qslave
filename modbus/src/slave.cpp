@@ -268,8 +268,9 @@ bool Slave::checkRequest(QByteArray data)
 
     quint8 crc_idx = data.size() - 2;
     quint16 crc = word(data.at(crc_idx), data.at(crc_idx + 1));
+	quint16 crcCalc = calcCRC16calccCRC16((quint8 *) datadata.data(), datasize.size() - 2);
 
-    if (crc != calcCRC16((quint8 *) data.data(), data.size() - 2))
+    if (crc != crcCalc)
     {
         logPrint("ERROR: Invalide CRC");
         return false;
@@ -435,7 +436,14 @@ void Slave::readRegisterValues(QByteArray data,
 
     for (int i = 0; i < count; i++)
     {
-        quint16 value = rv[address + i].value;
+        /*
+         * added a check-in of the register address in the downloaded configuration.
+         * if the configuration file does not specify the address of the register, but it is still transmitted from the modbus device, then a string from zero will be inserted into the table
+        */
+        if (rv.find(findaddress + i) == rv.end())
+            continue;
+
+		quint16 value = rv[address + i].value;
         reply.append(hiByte(value));
         reply.append(loByte(value));
     }
@@ -611,7 +619,7 @@ void Slave::processData(QByteArray data)
     // Get slave id from received data
     quint8 id = static_cast<quint8>(data.at(0));
 
-    // Check slvae id
+    // Check slave id
     if (id == this->id)
     {
         // Check received data and process request
