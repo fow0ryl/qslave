@@ -2,13 +2,15 @@
 
 pkgname=qslave
 pkgver=1.0.2
-pkgrel=3
+pkgrel=4
 pkgdesc="Modbus RTU network emulator for PC"
 arch=('x86_64')
 url="https://github.com/maisvendoo/qslave"
 license=('GPL')
-depends=('qt6-base')
-makedepends=('git' 'gendesk')
+depends=('qt6-base'
+          'qt6-serialport')
+makedepends=('git'
+             'gendesk')
 
 source=("git+https://github.com/fow0ryl/qslave.git#branch=dev")
 
