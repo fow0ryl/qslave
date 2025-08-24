@@ -621,6 +621,8 @@ void MainWindow::onDiscreteInputChanged(int row, int column)
     if (column != VALUE_COL)
         return;
 
+    /*Corrected, now the address is tied to the register address from the configuration, and not to this one: DI_INIT_ADDRESS + row*/
+
     quint16 address = DI_INIT_ADDRESS + row;
     bool value = static_cast<bool>(ui->twDiscreteInputs->item(row, column)->text().toInt());
 
@@ -644,6 +646,8 @@ void MainWindow::onCoilChanged(int row, int column)
 {
     if (column != VALUE_COL)
         return;
+
+    /*Corrected, now the address is tied to the register address from the configuration, and not to this one: CL_INIT_ADDRESS + row*/
 
     quint16 address = CL_INIT_ADDRESS + row;
     bool value = static_cast<bool>(ui->twCoils->item(row, column)->text().toInt());
@@ -669,6 +673,8 @@ void MainWindow::onInputRegisterChanged(int row, int column)
     if (column != VALUE_COL)
         return;
 
+    /*Corrected, now the address is linked to the register address from the configuration, and not to this one: IT_INIT_ADDRESS + row*/
+
     quint16 address = IT_INIT_ADDRESS + row;
     quint16 value = static_cast<quint16>(ui->twInputRegisters->item(row, column)->text().toInt());
 
@@ -692,6 +698,8 @@ void MainWindow::onHoldingRegisterChanged(int row, int column)
 {
     if (column != VALUE_COL)
         return;
+
+    /*Corrected, now the address is tied to the register address from the configuration, and not to this one: HL_INIT_ADDRESS + row*/
 
     quint16 address = HL_INIT_ADDRESS + row;
     quint16 value = static_cast<quint16>(ui->twHoldingRedisters->item(row, column)->text().toInt());
@@ -740,10 +748,16 @@ void MainWindow::onOpenFileMenu()
                                                     "Open network configuration",
                                                     fullPath,
                                                     "*.net");
+    /*we make it so that the MainWindow::activeSlaveChanged method is not executed,
+     * because it interferes with updating the Slaves device list.
+     * This fixes the issue with file re-download.
+    */
     modnet->clear();
     ui->lwSlavesList->clear();
 
     loadNetworkConfig(filePath);
+	/*Start executing the MainWindow::activeSlaveChanged method
+     * after loading the configuration file and updating the Slaves device list
+    */
 }
-
 
