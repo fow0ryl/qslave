@@ -2,15 +2,14 @@
 
 pkgname=qslave
 pkgver=1.0.2
-pkgrel=4
+pkgrel=5
 pkgdesc="Modbus RTU network emulator for PC"
 arch=('x86_64')
 url="https://github.com/maisvendoo/qslave"
 license=('GPL')
 depends=('qt6-base'
-          'qt6-serialport')
-makedepends=('git'
-             'gendesk')
+		 'qt6-serialport')
+makedepends=('git' 'gendesk')
 
 source=("git+https://github.com/fow0ryl/qslave.git#branch=dev")
 
@@ -38,8 +37,9 @@ package() {
 	install -Dm644 $srcdir/$pkgname.desktop $pkgdir/usr/share/applications/$pkgname.desktop
 	install -Dm644 $pkgname-gui/resources/img/logo.png $pkgdir/usr/share/pixmaps/$pkgname.png
 
-	install -Dm644 cfg/example/example.net $pkgdir/etc/qslave/example/example.net
-	install -Dm644 cfg/example/traffic-light.xml $pkgdir/etc/qslave/example/traffic-light.xml
+	install -Dm644 cfg/example/example.net $pkgdir/usr/share/qslave/example/example.net
+	install -Dm644 cfg/example/traffic-light.xml $pkgdir/usr/share/qslave/example/traffic-light.xml
+	install -Dm644 cfg/example/XY-MD02.xml $pkgdir/usr/share/qslave/example/XY-MD02.xml
 	
 	cd ../bin
 	install -Dm755 $pkgname-gui $pkgdir/usr/bin/$pkgname 
