@@ -514,35 +514,31 @@ void MainWindow::updateCoils(quint8 id)
 //------------------------------------------------------------------------------
 void MainWindow::updateHoldingRegisters(quint8 id)
 {
-    int idx = ui->lwSlavesList->currentRow();
-
-    if(idx < 0)
-        return;
-
-    if (id != getSlaveByIndex(idx)->getID())
-        return;
-
     Slave *slave = modnet->getSlaves()[id];
 
     ui->twHoldingRedisters->setRowCount(0);
 
-    for (int i = 0; i < slave->getHoldingRegistersCount(); i++)
+	int i = 0;
+
+    foreach (const auto key, slave->getHoldingRegisters())
     {
+
         ui->twHoldingRedisters->insertRow(i);
 
         ui->twHoldingRedisters->setItem(i,
                              ADDRESS_COL,
-                             new QTableWidgetItem(QString::number(HL_INIT_ADDRESS + i)));
+							 new QTableWidgetItem(QString::number(key.address)));
 
         ui->twHoldingRedisters->setItem(i,
                              DESC_COL,
-                             new QTableWidgetItem(slave->getHoldingRegisterDescription(HL_INIT_ADDRESS + i)));
+							 new QTableWidgetItem(slave->getHoldingRegisterDescription(key.address)));
 
-        int value = static_cast<int>(slave->getHoldingRegister(HL_INIT_ADDRESS + i));
+		int value = static_cast<int>(slave->getHoldingRegister(key.address));
 
         ui->twHoldingRedisters->setItem(i,
                              VALUE_COL,
                              new QTableWidgetItem(QString::number(value)));
+		i++;
     }
 }
 
@@ -712,7 +708,8 @@ void MainWindow::onHoldingRegisterChanged(int row, int column)
 	 * Corrected, now the address is tied to the register address from the configuration, and not to this one: HL_INIT_ADDRESS + row
     */
 
-    quint16 address = static_cast<quint16>(ui->twHoldingRedisters->item(row, column)->text().toInt());
+    quint16 address = static_cast<quint16>(ui->twHoldingRedisters->item(row, 0)->text().toInt());
+//HR    quint16 address = static_cast<quint16>(ui->twHoldingRedisters->item(row, column)->text().toInt());
     quint16 value = static_cast<quint16>(ui->twHoldingRedisters->item(row, column)->text().toInt());
 
     int idx = ui->lwSlavesList->currentRow();
