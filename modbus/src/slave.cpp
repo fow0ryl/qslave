@@ -166,6 +166,9 @@ QMap<quint16, data_unit_t<quint16>> Slave::getInputRegisters() const{
 	return input_registers;
 }
 
+QMap<quint16, data_unit_t<quint16>> Slave::getHoldingRegisters() const{
+	return holding_registers;
+}
 
 //------------------------------------------------------------------------------
 //
