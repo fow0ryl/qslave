@@ -61,7 +61,7 @@ struct serial_config_t
         if (parity == "Even")
             return QSerialPort::EvenParity;
 
-        return QSerialPort::UnknownParity;
+        return QSerialPort::SpaceParity;
     }
 };
 

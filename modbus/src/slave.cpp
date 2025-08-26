@@ -166,6 +166,9 @@ QMap<quint16, data_unit_t<quint16>> Slave::getInputRegisters() const{
 	return input_registers;
 }
 
+QMap<quint16, data_unit_t<quint16>> Slave::getHoldingRegisters() const{
+	return holding_registers;
+}
 
 //------------------------------------------------------------------------------
 //
@@ -268,8 +271,9 @@ bool Slave::checkRequest(QByteArray data)
 
     quint8 crc_idx = data.size() - 2;
     quint16 crc = word(data.at(crc_idx), data.at(crc_idx + 1));
+    quint16 crcCalc = calcCRC16((quint8 *) data.data(), data.size() - 2);
 
-    if (crc != calcCRC16((quint8 *) data.data(), data.size() - 2))
+    if (crc != crcCalc)
     {
         logPrint("ERROR: Invalide CRC");
         return false;
@@ -435,6 +439,18 @@ void Slave::readRegisterValues(QByteArray data,
 
     for (int i = 0; i < count; i++)
     {
+        /*
+         * добавил проверку наличия адреса регистра в загруженной конфигурации.
+         * если в файле конфигурации не указать адрес регистра, но он все же передается с устройства modbus, то в таблицу вставится строка с нуля
+        */
+		/*
+         * added check for presence of register address in loaded configuration.
+         * if the register address is not specified in the configuration file, but it is still transmitted from the modbus device, then a row from scratch will be inserted into the table
+        */
+		
+        if (rv.find(address + i) == rv.end())
+            continue;
+
         quint16 value = rv[address + i].value;
         reply.append(hiByte(value));
         reply.append(loByte(value));
@@ -611,7 +627,7 @@ void Slave::processData(QByteArray data)
     // Get slave id from received data
     quint8 id = static_cast<quint8>(data.at(0));
 
-    // Check slvae id
+    // Check slave id
     if (id == this->id)
     {
         // Check received data and process request

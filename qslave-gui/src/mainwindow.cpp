@@ -443,7 +443,11 @@ void MainWindow::updateSlavesList()
         ui->lwSlavesList->setCurrentRow(0);
 }
 
-void MainWindow::updateRegisters(quint8 id){
+//------------------------------------------------------------------------------
+//
+//------------------------------------------------------------------------------
+void MainWindow::updateRegisters(quint8 id)
+{
     Slave *slave = getSlaveByIndex(id);
 
     if (slave == nullptr)
@@ -482,10 +486,10 @@ void MainWindow::updateCoils(quint8 id)
 
     ui->twCoils->setRowCount(0);
 
-	int i = 0;
+    int i = 0;
 
-    foreach (const auto key, slave->getCoils()) {
-
+    foreach (const auto key, slave->getCoils())
+    {
         ui->twCoils->insertRow(i);
 
         ui->twCoils->setItem(i,
@@ -510,35 +514,31 @@ void MainWindow::updateCoils(quint8 id)
 //------------------------------------------------------------------------------
 void MainWindow::updateHoldingRegisters(quint8 id)
 {
-    int idx = ui->lwSlavesList->currentRow();
-
-    if(idx < 0)
-        return;
-
-    if (id != getSlaveByIndex(idx)->getID())
-        return;
-
     Slave *slave = modnet->getSlaves()[id];
 
     ui->twHoldingRedisters->setRowCount(0);
 
-    for (int i = 0; i < slave->getHoldingRegistersCount(); i++)
+	int i = 0;
+
+    foreach (const auto key, slave->getHoldingRegisters())
     {
+
         ui->twHoldingRedisters->insertRow(i);
 
         ui->twHoldingRedisters->setItem(i,
                              ADDRESS_COL,
-                             new QTableWidgetItem(QString::number(HL_INIT_ADDRESS + i)));
+							 new QTableWidgetItem(QString::number(key.address)));
 
         ui->twHoldingRedisters->setItem(i,
                              DESC_COL,
-                             new QTableWidgetItem(slave->getHoldingRegisterDescription(HL_INIT_ADDRESS + i)));
+							 new QTableWidgetItem(slave->getHoldingRegisterDescription(key.address)));
 
-        int value = static_cast<int>(slave->getHoldingRegister(HL_INIT_ADDRESS + i));
+		int value = static_cast<int>(slave->getHoldingRegister(key.address));
 
         ui->twHoldingRedisters->setItem(i,
                              VALUE_COL,
                              new QTableWidgetItem(QString::number(value)));
+		i++;
     }
 }
 
@@ -552,9 +552,10 @@ void MainWindow::updateDiscreteInputs(quint8 id)
     ui->twDiscreteInputs->setRowCount(0);
 
 
-	int i = 0;
+    int i = 0;
 
-    foreach (const auto key, slave->getDiscreteInputs()) {
+    foreach (const auto key, slave->getDiscreteInputs())
+    {
 
         ui->twDiscreteInputs->insertRow(i);
 
@@ -586,8 +587,8 @@ void MainWindow::updateInputRegisters(quint8 id)
 
 	int i = 0;
 
-    foreach (const auto key, slave->getInputRegisters()) {
-
+    foreach (const auto key, slave->getInputRegisters())
+    {
         ui->twInputRegisters->insertRow(i);
 
         ui->twInputRegisters->setItem(i,
@@ -615,8 +616,11 @@ void MainWindow::onDiscreteInputChanged(int row, int column)
     if (column != VALUE_COL)
         return;
 
-    /*Исправил, теперь адрес привязан к адресу регистра из конфигурации, а не вот к этому : IT_INIT_ADDRESS + row*/
-	/*Corrected, now the address is tied to the register address from the configuration, and not to this one: DI_INIT_ADDRESS + row*/
+    /* Исправил, теперь адрес привязан к адресу регистра из конфигурации, а не вот к этому : DI_INIT_ADDRESS + row
+     *
+     * Corrected, now the address is tied to the register address from the configuration, and not to this one: DI_INIT_ADDRESS + row
+    */
+
     quint16 address = static_cast<bool>(ui->twDiscreteInputs->item(row, 0)->text().toInt());
     bool value = static_cast<bool>(ui->twDiscreteInputs->item(row, column)->text().toInt());
 
@@ -641,8 +645,11 @@ void MainWindow::onCoilChanged(int row, int column)
     if (column != VALUE_COL)
         return;
 
-     /*Исправил, теперь адрес привязан к адресу регистра из конфигурации, а не вот к этому : CL_INIT_ADDRESS + row*/
-     /*Corrected, now the address is tied to the register address from the configuration, and not to this one: CL_INIT_ADDRESS + row*/
+     /* Исправил, теперь адрес привязан к адресу регистра из конфигурации, а не вот к этому : CL_INIT_ADDRESS + row
+      *
+      * Corrected, now the address is tied to the register address from the configuration, and not to this one: CL_INIT_ADDRESS + row
+     */
+
     quint16 address = static_cast<bool>(ui->twCoils->item(row, 0)->text().toInt());
     bool value = static_cast<bool>(ui->twCoils->item(row, column)->text().toInt());
 
@@ -667,8 +674,11 @@ void MainWindow::onInputRegisterChanged(int row, int column)
     if (column != VALUE_COL)
         return;
 
-    /*Исправил, теперь адрес привязан к адресу регистра из конфигурации, а не вот к этому : IT_INIT_ADDRESS + row*/
-	/*Corrected, now the address is linked to the register address from the configuration, and not to this one: IT_INIT_ADDRESS + row*/
+    /*Исправил, теперь адрес привязан к адресу регистра из конфигурации, а не вот к этому : IT_INIT_ADDRESS + row
+     *
+     * Corrected, now the address is linked to the register address from the configuration, and not to this one: IT_INIT_ADDRESS + row
+    */
+
     quint16 address = static_cast<quint16>(ui->twInputRegisters->item(row, 0)->text().toInt());
     quint16 value = static_cast<quint16>(ui->twInputRegisters->item(row, column)->text().toInt());
 
@@ -693,9 +703,13 @@ void MainWindow::onHoldingRegisterChanged(int row, int column)
     if (column != VALUE_COL)
         return;
 
-    /*Исправил, теперь адрес привязан к адресу регистра из конфигурации, а не вот к этому : HL_INIT_ADDRESS + row*/
-	/*Corrected, now the address is tied to the register address from the configuration, and not to this one: HL_INIT_ADDRESS + row*/
-    quint16 address = static_cast<quint16>(ui->twHoldingRedisters->item(row, column)->text().toInt());
+    /* Исправил, теперь адрес привязан к адресу регистра из конфигурации, а не вот к этому : HL_INIT_ADDRESS + row
+     *
+	 * Corrected, now the address is tied to the register address from the configuration, and not to this one: HL_INIT_ADDRESS + row
+    */
+
+    quint16 address = static_cast<quint16>(ui->twHoldingRedisters->item(row, 0)->text().toInt());
+//HR    quint16 address = static_cast<quint16>(ui->twHoldingRedisters->item(row, column)->text().toInt());
     quint16 value = static_cast<quint16>(ui->twHoldingRedisters->item(row, column)->text().toInt());
 
     int idx = ui->lwSlavesList->currentRow();
@@ -743,14 +757,15 @@ void MainWindow::onOpenFileMenu()
                                                     fullPath,
                                                     "*.net");
 
-    /*делаем так, чтобы метод MainWindow::activeSlaveChanged не выполнялся,
+    /* делаем так, чтобы метод MainWindow::activeSlaveChanged не выполнялся,
      * так как он мешает обновлению листа Slaves устройств.
      * Это устраняет проблему с повторной загрузкой файла.
-    */
-    /* we make it so that the MainWindow::activeSlaveChanged method is not executed,
+     *
+     * We make it so that the MainWindow::activeSlaveChanged method is not executed,
      * because it interferes with updating the Slaves device list.
      * This fixes the issue with file re-download.
     */
+	
     disconnect(ui->lwSlavesList, &QListWidget::currentItemChanged,
             this, &MainWindow::activeSlaveChanged);
 
@@ -759,10 +774,10 @@ void MainWindow::onOpenFileMenu()
 
     loadNetworkConfig(filePath);
 
-    /*Запускаем выполнение метода MainWindow::activeSlaveChanged
+    /* Запускаем выполнение метода MainWindow::activeSlaveChanged
      * после загрузки файла конфигурации  и обновления листа Slaves устройств
-    */
-	/*Start executing the MainWindow::activeSlaveChanged method
+     *
+     * Start executing the MainWindow::activeSlaveChanged method
      * after loading the configuration file and updating the Slaves device list
     */
     connect(ui->lwSlavesList, &QListWidget::currentItemChanged,

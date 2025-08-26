@@ -4,8 +4,17 @@
 		<!-- Slave description -->
 		<Description>Traffic light</Description>
 		<!-- Slave ID -->
-		<id>1</id>
+		<id>11</id>
 		<!-- Slave config file (without *.xml extension) -->
 		<config>traffic-light</config>
+	</Slave>
+	
+	<Slave>
+		<!-- Slave description -->
+		<Description>SHT20 Temperatur and Humidity Sensor</Description>
+		<!-- Slave ID -->
+		<id>12</id>
+		<!-- Slave config file (without *.xml extension) -->
+		<config>XY-MD02</config>
 	</Slave>
 </Config>

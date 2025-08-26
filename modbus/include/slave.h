@@ -66,6 +66,7 @@ public:
 	QMap<quint16, data_unit_t<bool>> getCoils() const;
 	QMap<quint16, data_unit_t<bool>> getDiscreteInputs() const;
 	QMap<quint16, data_unit_t<quint16>> getInputRegisters() const;
+	QMap<quint16, data_unit_t<quint16>> getHoldingRegisters() const;
 
     /// Get discrete input value
     bool getDiscreteInput(quint16 address) const;

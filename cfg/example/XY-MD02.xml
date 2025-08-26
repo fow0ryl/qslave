@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Config>
+	<!-- Input registers list -->
+	<InputRegister>
+		<address>1</address>
+		<description>Temperature °C</description>
+		<value>215</value>
+	</InputRegister>
+	<InputRegister>
+		<address>2</address>
+		<description>Humidity %</description>
+		<value>430</value>
+	</InputRegister>
+	
+	<!-- Holding registers list -->
+	<HoldingRegister>
+		<address>257</address>
+		<description>Device Address (Slave ID)</description>
+		<value>1</value>
+	</HoldingRegister>
+	<HoldingRegister>
+		<address>258</address>
+		<description>Baud Rate: 0=9600, 1=14400, 2=19200</description>
+		<value>0</value>
+	</HoldingRegister>
+	<HoldingRegister>
+		<address>259</address>
+		<description>Temperature Offset -10°C - 10°C</description>
+		<value>0</value>
+	</HoldingRegister>
+	<HoldingRegister>
+		<address>260</address>
+		<description>Humidity Offset -10%RH - 10%RH</description>
+		<value>0</value>
+	</HoldingRegister>
+</Config>

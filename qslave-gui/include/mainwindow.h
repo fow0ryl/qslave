@@ -70,6 +70,7 @@ private slots:
 
     void activeSlaveChanged(QListWidgetItem *cur, QListWidgetItem *prev);
 
+    void updateRegisters (quint8 id);
     void updateCoils(quint8 id);
     void updateHoldingRegisters(quint8 id);
     void updateDiscreteInputs(quint8 id);

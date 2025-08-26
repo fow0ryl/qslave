@@ -26,7 +26,7 @@
 	
 	<!-- Holding registers list -->
 	<HoldingRegister>
-		<address>5</address>
+		<address>6</address>
 		<description>Signal activity time</description>
 		<value>15</value>
 	</HoldingRegister>
